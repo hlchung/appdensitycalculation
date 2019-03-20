@@ -43,7 +43,7 @@ In the code CityDensity.R, the *population.csv* and *regionarea.csv* files were 
       regionAreaAndPopulation <- merge(population, regionArea, by = "Region")
       library(dplyr)
 
-After merging the two files, they were grouped according to **Region and CityProvince**, where the number of city per region was counted. The same method was used when the **NumberOfCity and Region** were merged and the **NumberOfCityPerRegion** was counted.
+After merging the two files, they were grouped according to **Region and CityProvince**, where the number of city per region was counted. The same method was used when the **Region** was grouped and the **NumberOfCityPerRegion** was counted.
 
       by_region <- group_by(regionAreaAndPopulation, Region, CityProvince)
       NumberOfCity <- summarise(by_region, Cityn = n())
