@@ -35,28 +35,38 @@ The results were arranged by descending order and the top 5 barangay with the hi
 
 ## City Density
 In the City Density problem, the goal is to produce a CSV file that will list down the top 5 cities with the highest densities.
-In the code CityDensity.R, the *population.csv* and *regionarea.csv* files were called using the read.csv function and assigned to *population* and *regionArea* variables, respectively. The two csv files were merged through the Region column and was named as *regionAreaAndPopulation*. Furthermore, the dplyr package was called.
+In the code CityDensity.R, the *population.csv* and *regionarea.csv* files were called using the read.csv function and assigned to **population** and **regionArea** variables, respectively. The two csv files were *merged through the Region column* and was named as **regionAreaAndPopulation**. Furthermore, the **dplyr** package was called.
 
       population <- read.csv("population.csv")
       regionArea <- read.csv("regionarea.csv")
       regionAreaAndPopulation <- merge(population, regionArea, by = "Region")
       library(dplyr)
 
-After merging the two files, 
+After merging the two files, they were grouped according to **Region and CityProvince**, where the number of city per region was counted. The same method was used when the **NumberOfCity and Region** were merged and the **NumberOfCityPerRegion** was counted.
 
       by_region <- group_by(regionAreaAndPopulation, Region, CityProvince)
       NumberOfCity <- summarise(by_region, Cityn = n())
       by_City <- group_by(NumberOfCity, Region)
       NumberOfCityPerRegion <- summarise(by_City, cityn = n())
 
-      AreaOfCityPerRegion <- regionArea$Area/NumberOfCityPerRegion$cityn #Area per Region / 
+To compute for the **AreaOfCityPerRegion**, the area of the region was divided by the number of city per region. 
+
+      AreaOfCityPerRegion <- regionArea$Area/NumberOfCityPerRegion$cityn #Area per Region  
       AreaOfCityPerRegion <- data.frame(regionArea$Region, AreaOfCityPerRegion)
-      PopulationByCity <- aggregate(population$Population, by = list(population$CityProvince), FUN = sum,               na.rm = TRUE)
+
+The **PopulationByCity** was also aggregated, while the column names were renamed to *CityProvince, Total Population, Region, and Area* for consistency. 
+
+      PopulationByCity <- aggregate(population$Population, by = list(population$CityProvince), FUN = sum,  
+            na.rm = TRUE)
       colnames(PopulationByCity) <- c('CityProvince', 'Total Population')
       colnames(AreaOfCityPerRegion) <- c('Region', 'Area')
 
+The files were then *merged* according to **CityProvince**
+
       merge(population,
             PopulationByCity, by = 'CityProvince')
+
+The following codes indicate how the columns were *merged*. Also, the computation for the **FinalCityDensity** is indicated by *dividing the TotalPopulation by the Area of the City*.
 
       CityProvinceRegion <- data.frame(population$CityProvince,population$Region)
       colnames(CityProvinceRegion) <- c('CityProvince', 'Region')
@@ -64,9 +74,10 @@ After merging the two files,
       PopulationByRegionCity <- merge(CityProvinceRegion, PopulationByCity, by='CityProvince')
       PopulationByRegionCity<-distinct(PopulationByRegionCity)
 
-
       FinalCityDensity <- merge(PopulationByRegionCity,AreaOfCityPerRegion, by = 'Region')
       FinalCityDensity$CityDensity <- FinalCityDensity$`Total Population`/FinalCityDensity$Area
+
+Using the **FinalCityDensity**, they were arranged in descending order according to the *CityDensity* and the top 5 cities with the highest city density was saved as a CSV file named *Top5City.csv* 
 
       FinalCityDensity <- arrange(FinalCityDensity, desc(CityDensity))
       write.csv(file = "Top5City.csv",FinalCityDensity[1:5,])
